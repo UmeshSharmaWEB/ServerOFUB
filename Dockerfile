@@ -1,12 +1,11 @@
 # Use official Ubuntu image
 FROM ubuntu:latest
 
-# Set non-interactive for apt
+# Prevent prompts during install
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update & install packages
-RUN apt-get update && \
-    apt-get upgrade -y && \
+# Update & install necessary packages
+RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y \
     sudo \
     systemd \
@@ -38,10 +37,9 @@ RUN apt-get update && \
     build-essential \
     tmate \
     && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set locale
+# Set UTF-8 locale
 RUN locale-gen en_US.UTF-8  
 ENV LANG=en_US.UTF-8  
 ENV LANGUAGE=en_US:en  
@@ -50,8 +48,11 @@ ENV LC_ALL=en_US.UTF-8
 # Set working directory
 WORKDIR /root
 
-# Optional: open port (not required for tmate)
-EXPOSE 22
+# Copy the startup script
+COPY start.sh /start.sh
 
-# Default shell
-CMD ["/bin/bash"]
+# Make it executable
+RUN chmod +x /start.sh
+
+# Run the startup script when container starts
+CMD ["/start.sh"]
